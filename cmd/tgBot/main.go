@@ -1,13 +1,19 @@
 package main
 
 import (
+	botAPI "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/joho/godotenv"
 	"log"
-
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"os"
 )
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI("5837590834:AAFxzRM_VaRSSPWWVc_sXIETbFoORy64kN0")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	token := os.Getenv("token")
+	bot, err := botAPI.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -16,7 +22,7 @@ func main() {
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	u := tgbotapi.UpdateConfig{
+	u := botAPI.UpdateConfig{
 		Timeout: 60,
 	}
 
@@ -26,7 +32,7 @@ func main() {
 		if update.Message != nil { // If we got a message
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Написано "+update.Message.Text)
+			msg := botAPI.NewMessage(update.Message.Chat.ID, "Написано "+update.Message.Text)
 			//msg.ReplyToMessageID = update.Message.MessageID
 
 			_, err := bot.Send(msg)
