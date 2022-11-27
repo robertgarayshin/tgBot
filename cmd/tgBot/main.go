@@ -35,6 +35,8 @@ func main() {
 		switch update.Message.Command() {
 		case "help":
 			printHelp(update.Message, bot)
+		case "list":
+			printList(update.Message, bot)
 		default:
 			defaultBehaviour(update.Message, bot)
 		}
@@ -43,7 +45,17 @@ func main() {
 }
 
 func printHelp(inputMessage *botAPI.Message, bot *botAPI.BotAPI) {
-	msg := botAPI.NewMessage(inputMessage.Chat.ID, "help")
+	msg := botAPI.NewMessage(inputMessage.Chat.ID,
+		"/help - help\n"+
+			"/list - list products")
+	_, err := bot.Send(msg)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func printList(inputMessage *botAPI.Message, bot *botAPI.BotAPI) {
+	msg := botAPI.NewMessage(inputMessage.Chat.ID, "TBD")
 	_, err := bot.Send(msg)
 	if err != nil {
 		log.Panic(err)
