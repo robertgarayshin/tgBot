@@ -3,6 +3,7 @@ package main
 import (
 	botAPI "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
+	"github.com/robertgarayshin/tgBot/internal/service/product"
 	"log"
 	"os"
 )
@@ -28,6 +29,8 @@ func main() {
 
 	updates := bot.GetUpdatesChan(u)
 
+	productService := product.NewService()
+
 	for update := range updates {
 		if update.Message == nil {
 			continue
@@ -36,7 +39,7 @@ func main() {
 		case "help":
 			printHelp(update.Message, bot)
 		case "list":
-			printList(update.Message, bot)
+			printList(update.Message, bot, productService)
 		default:
 			defaultBehaviour(update.Message, bot)
 		}
@@ -54,8 +57,16 @@ func printHelp(inputMessage *botAPI.Message, bot *botAPI.BotAPI) {
 	}
 }
 
-func printList(inputMessage *botAPI.Message, bot *botAPI.BotAPI) {
-	msg := botAPI.NewMessage(inputMessage.Chat.ID, "TBD")
+func printList(inputMessage *botAPI.Message, bot *botAPI.BotAPI, productService *product.Service) {
+
+	outputMsgText := "Here all the products: \n\n"
+
+	products := productService.List()
+	for _, p := range products {
+		outputMsgText += p.Title
+		outputMsgText += "\n"
+	}
+	msg := botAPI.NewMessage(inputMessage.Chat.ID, outputMsgText)
 	_, err := bot.Send(msg)
 	if err != nil {
 		log.Panic(err)
