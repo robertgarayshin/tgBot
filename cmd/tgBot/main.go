@@ -3,6 +3,7 @@ package main
 import (
 	botAPI "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
+	"github.com/robertgarayshin/tgBot/internal/app/commands"
 	"github.com/robertgarayshin/tgBot/internal/service/product"
 	"log"
 	"os"
@@ -31,52 +32,19 @@ func main() {
 
 	productService := product.NewService()
 
+	commander := commands.NewCommander(bot, productService)
 	for update := range updates {
 		if update.Message == nil {
 			continue
 		} // If we got not a message
 		switch update.Message.Command() {
 		case "help":
-			printHelp(update.Message, bot)
+			commander.Help(update.Message)
 		case "list":
-			printList(update.Message, bot, productService)
+			commander.List(update.Message)
 		default:
-			defaultBehaviour(update.Message, bot)
+			commander.Default(update.Message)
 		}
 
-	}
-}
-
-func printHelp(inputMessage *botAPI.Message, bot *botAPI.BotAPI) {
-	msg := botAPI.NewMessage(inputMessage.Chat.ID,
-		"/help - help\n"+
-			"/list - list products")
-	_, err := bot.Send(msg)
-	if err != nil {
-		log.Panic(err)
-	}
-}
-
-func printList(inputMessage *botAPI.Message, bot *botAPI.BotAPI, productService *product.Service) {
-
-	outputMsgText := "Here all the products: \n\n"
-
-	products := productService.List()
-	for _, p := range products {
-		outputMsgText += p.Title
-		outputMsgText += "\n"
-	}
-	msg := botAPI.NewMessage(inputMessage.Chat.ID, outputMsgText)
-	_, err := bot.Send(msg)
-	if err != nil {
-		log.Panic(err)
-	}
-}
-
-func defaultBehaviour(inputMessage *botAPI.Message, bot *botAPI.BotAPI) {
-	msg := botAPI.NewMessage(inputMessage.Chat.ID, "Written "+inputMessage.Text)
-	_, err := bot.Send(msg)
-	if err != nil {
-		log.Panic(err)
 	}
 }
