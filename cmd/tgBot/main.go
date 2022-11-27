@@ -18,7 +18,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	bot.Debug = true
+	bot.Debug = false
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
@@ -29,16 +29,31 @@ func main() {
 	updates := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message != nil { // If we got a message
-			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-			msg := botAPI.NewMessage(update.Message.Chat.ID, "Написано "+update.Message.Text)
-			//msg.ReplyToMessageID = update.Message.MessageID
-
-			_, err := bot.Send(msg)
-			if err != nil {
-				log.Panic(err)
-			}
+		if update.Message == nil {
+			continue
+		} // If we got not a message
+		switch update.Message.Command() {
+		case "help":
+			printHelp(update.Message, bot)
+		default:
+			defaultBehaviour(update.Message, bot)
 		}
+
+	}
+}
+
+func printHelp(inputMessage *botAPI.Message, bot *botAPI.BotAPI) {
+	msg := botAPI.NewMessage(inputMessage.Chat.ID, "help")
+	_, err := bot.Send(msg)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func defaultBehaviour(inputMessage *botAPI.Message, bot *botAPI.BotAPI) {
+	msg := botAPI.NewMessage(inputMessage.Chat.ID, "Written "+inputMessage.Text)
+	_, err := bot.Send(msg)
+	if err != nil {
+		log.Panic(err)
 	}
 }
