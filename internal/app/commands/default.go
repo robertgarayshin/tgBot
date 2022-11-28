@@ -12,3 +12,19 @@ func (c *Commander) Default(inputMessage *botAPI.Message) {
 		log.Panic(err)
 	}
 }
+
+func (c *Commander) HandleUpdate(update botAPI.Update) {
+	if update.Message == nil {
+		return
+	} // If we got not a message
+	switch update.Message.Command() {
+	case "help":
+		c.Help(update.Message)
+	case "list":
+		c.List(update.Message)
+	case "Get":
+		c.Get(update.Message)
+	default:
+		c.Default(update.Message)
+	}
+}
