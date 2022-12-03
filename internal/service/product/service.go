@@ -1,5 +1,7 @@
 package product
 
+import "errors"
+
 type Service struct{}
 
 func NewService() *Service {
@@ -8,4 +10,11 @@ func NewService() *Service {
 
 func (s *Service) List() []Product {
 	return allProducts
+}
+
+func (s *Service) Get(idx int) (*Product, error) {
+	if idx-1 > len(allProducts) {
+		return nil, errors.New("wrong idx")
+	}
+	return &allProducts[idx], nil
 }

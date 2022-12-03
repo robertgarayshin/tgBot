@@ -14,6 +14,12 @@ func (c *Commander) Default(inputMessage *botAPI.Message) {
 }
 
 func (c *Commander) HandleUpdate(update botAPI.Update) {
+	defer func() {
+		if panicValue := recover(); panicValue != nil {
+			log.Printf("recovered from panic: %v", panicValue)
+		}
+	}()
+
 	if update.Message == nil {
 		return
 	} // If we got not a message
@@ -22,7 +28,7 @@ func (c *Commander) HandleUpdate(update botAPI.Update) {
 		c.Help(update.Message)
 	case "list":
 		c.List(update.Message)
-	case "Get":
+	case "get":
 		c.Get(update.Message)
 	default:
 		c.Default(update.Message)
